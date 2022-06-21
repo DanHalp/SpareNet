@@ -154,17 +154,23 @@ def save_depth_map(
     ).float()
     for j in range(len(compute_depth_maps.eyes_pos_list)):  # 8 views // 4 = 2 view
         gen_render_imgs = compute_depth_maps(refine_ptcloud, j, radius_list=[7.0])  # Manually use radius 7.0
-        plot_path = os.path.join(cfg.DIR.logs, "plots", taxonomy_id, str(model_idx), str(j) + "2.png")
+        plot_path = os.path.join(cfg.DIR.logs, "plots", taxonomy_id, str(model_idx))
+        os.makedirs(plot_path, exist_ok=True)
+        plot_path = os.path.join(plot_path, str(j) + "2.png")        
         print("save image", plot_path)
         torchvision.utils.save_image(gen_render_imgs, plot_path, pad_value=1)
 
         gen_render_imgs = compute_depth_maps(data["partial_cloud"], j, radius_list=[7.0])  # Manually use radius 7.0
-        plot_path = os.path.join(cfg.DIR.logs, "plots", taxonomy_id, str(model_idx), str(j) + "1.png")
+        plot_path = os.path.join(cfg.DIR.logs, "plots", taxonomy_id, str(model_idx))
+        os.makedirs(plot_path, exist_ok=True)
+        plot_path = os.path.join(plot_path, str(j) + "1.png")     
         print("save image", plot_path)
         torchvision.utils.save_image(gen_render_imgs, plot_path, pad_value=1)
 
         gen_render_imgs = compute_depth_maps(data["gtcloud"], j, radius_list=[7.0])  # Manually use radius 7.0
-        plot_path = os.path.join(cfg.DIR.logs, "plots", taxonomy_id, str(model_idx), str(j) + "3.png")
+        plot_path = os.path.join(cfg.DIR.logs, "plots", taxonomy_id, str(model_idx))
+        os.makedirs(plot_path, exist_ok=True)
+        plot_path = os.path.join(plot_path, str(j) + "3.png")     
         print("save image", plot_path)
         torchvision.utils.save_image(gen_render_imgs, plot_path, pad_value=1)
 
@@ -228,7 +234,15 @@ class IO:
     def _write_pcd(cls, file_path, file_content):
         pc = open3d.geometry.PointCloud()
         pc.points = open3d.utility.Vector3dVector(file_content)
-        open3d.io.write_point_cloud(file_path, pc)
+        open3d.io.write_point_cloud(file_path, pc, print_progress=True)
+        
+    @classmethod
+    def _write_pcd_to_obj(cls, file_path, file_content):
+        with open(file_path, "w") as output:
+            for v in file_content:
+                x, y, z = v
+                output.write(f"v {x} {y} {z}\n")
+        output.close()
 
     @classmethod
     def _write_h5(cls, file_path, file_content):

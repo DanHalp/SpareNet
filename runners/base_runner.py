@@ -325,6 +325,28 @@ class BaseRunner(object):
                         output_file_path,
                     )
                 )
+            elif self.config.TEST.mode == "ML3D":
+                output_folder = os.path.join(self.config.DIR.logs, "point_clouds", self.taxonomy_id, f"{self.model_idx}")
+                os.makedirs(
+                    output_folder,
+                    exist_ok=True,
+                )
+                
+                pcd = data["partial_cloud"].squeeze().cpu().numpy()
+                output_file_path = os.path.join(output_folder, "%s_orig.pcd" % self.model_idx)
+                uv.IO.put(output_file_path, pcd)
+                output_file_path = os.path.join(output_folder, "%s_orig.obj" % self.model_idx)
+                uv.IO._write_pcd_to_obj(output_file_path, pcd)
+                print(f"Saved original point cloud to {output_file_path}")
+                
+                pcd = self.ptcloud.squeeze().cpu().numpy()
+                output_file_path = os.path.join(output_folder, "%s_pred.pcd" % self.model_idx)                
+                uv.IO.put(output_file_path, pcd)
+                output_file_path = os.path.join(output_folder, "%s_pred.obj" % self.model_idx)
+                uv.IO._write_pcd_to_obj(output_file_path, pcd)
+                print(f"Saved predicted point cloud to {output_file_path}")
+                
+                exit()
 
     def runner(self):
         """Runner"""

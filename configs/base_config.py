@@ -98,8 +98,8 @@ __C.DATASETS.shapenet.n_points = 16384
 # 'GRnet' or 'ShapeNet' version dataset
 __C.DATASETS.shapenet.version = "GRnet"
 __C.DATASETS.shapenet.category_file_path = "./datasets/data/ShapeNet.json"
-__C.DATASETS.shapenet.partial_points_path = "/path/to/datasets/ShapeNetCompletion/%s/partial/%s/%s/%02d.pcd"
-__C.DATASETS.shapenet.complete_points_path = "/path/to/datasets/ShapeNetCompletion/%s/complete/%s/%s.pcd"
+__C.DATASETS.shapenet.partial_points_path = "/home/halperin/SpareNet/data/ShapeNetCompletion/%s/partial/%s/%s/%02d.pcd"
+__C.DATASETS.shapenet.complete_points_path = "/home/halperin/SpareNet/data/ShapeNetCompletion/%s/complete/%s/%s.pcd"
 __C.DATASETS.completion3d = edict()
 __C.DATASETS.completion3d.category_file_path = "/path/to/datasets/data/Completion3D.json"
 __C.DATASETS.completion3d.partial_points_path = "/path/to/datasets/completion3d/data/shapenet/%s/partial/%s/%s.h5"
@@ -149,7 +149,7 @@ def _merge_a_into_b(a, b):
 def cfg_from_file(filename):
     """Load a config file and merge it into the default options."""
     with open(filename, "r", encoding="utf-8") as f:
-        yaml_cfg = edict(yaml.load(f))
+        yaml_cfg = edict(yaml.full_load(f))
 
     _merge_a_into_b(yaml_cfg, __C)
 
