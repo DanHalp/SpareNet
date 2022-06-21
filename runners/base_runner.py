@@ -197,6 +197,7 @@ class BaseRunner(object):
 
         for items in enumerate(self.val_loader):
             self.model_idx, (taxonomy_id, _, model_id, data) = items
+            print(self.model_idx)
             self.taxonomy_id = (
                 taxonomy_id[0]
                 if isinstance(taxonomy_id[0], str)
@@ -210,6 +211,7 @@ class BaseRunner(object):
             self.val_time.update(time() - val_start_time)
             self.save_item_val_info(data)
 
+        
         self.metrics = um.Metrics(self.config.TEST.metric_name, self.test_metrics.avg())
         self.val_finish()
 
@@ -257,7 +259,7 @@ class BaseRunner(object):
         for k, v in data.items():
             data[k] = v.float().to(self.gpu_ids[0])
 
-        if self.model_idx % self.config.TEST.infer_freq == 0:
+        if (self.model_idx % self.config.TEST.infer_freq == 0) or self.config.TEST.mode == "ML3D":
 
             if self.config.TEST.mode == "default":
                 uv.tensorflow_save_image(
@@ -346,8 +348,13 @@ class BaseRunner(object):
                 uv.IO._write_pcd_to_obj(output_file_path, pcd)
                 print(f"Saved predicted point cloud to {output_file_path}")
                 
-                exit()
-
+                pcd = data["gtcloud"].squeeze().cpu().numpy()
+                output_file_path = os.path.join(output_folder, "%s_gt.pcd" % self.model_idx)                
+                uv.IO.put(output_file_path, pcd)
+                output_file_path = os.path.join(output_folder, "%s_gt.obj" % self.model_idx)
+                uv.IO._write_pcd_to_obj(output_file_path, pcd)
+                print(f"Saved ground_truth point cloud to {output_file_path}")
+                
     def runner(self):
         """Runner"""
         self.start_time = time()
