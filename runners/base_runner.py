@@ -18,6 +18,7 @@ from datasets.data_loaders import data_init
 import utils.misc as um
 import utils.visualizer as uv
 from utils.model_init import generator_init
+from cuda.chamfer_distance import ChamferDistance, ChamferDistanceMean
 
 
 class BaseRunner(object):
@@ -328,11 +329,13 @@ class BaseRunner(object):
                     )
                 )
             elif self.config.TEST.mode == "ML3D":
+               
                 output_folder = os.path.join(self.config.DIR.logs, "point_clouds", self.taxonomy_id, f"{self.model_idx}")
                 os.makedirs(
                     output_folder,
                     exist_ok=True,
                 )
+                
                 
                 pcd = data["partial_cloud"].squeeze().cpu().numpy()
                 output_file_path = os.path.join(output_folder, "%s_orig.pcd" % self.model_idx)
@@ -341,7 +344,11 @@ class BaseRunner(object):
                 uv.IO._write_pcd_to_obj(output_file_path, pcd)
                 print(f"Saved original point cloud to {output_file_path}")
                 
-                pcd = self.ptcloud.squeeze().cpu().numpy()
+                dis = ChamferDistance()(self.ptcloud, data["gtcloud"])
+                indices = dis[0] < dis[0].mean()
+             
+                pcd = self.ptcloud[indices].squeeze().cpu().numpy()
+                # pcd = self.ptcloud.squeeze().cpu().numpy()
                 output_file_path = os.path.join(output_folder, "%s_pred.pcd" % self.model_idx)                
                 uv.IO.put(output_file_path, pcd)
                 output_file_path = os.path.join(output_folder, "%s_pred.obj" % self.model_idx)
