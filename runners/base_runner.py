@@ -176,25 +176,25 @@ class BaseRunner(object):
             self.category_metrics[self.taxonomy_id] = AverageMeter(um.Metrics.names())
         self.category_metrics[self.taxonomy_id].update(self.metrics)
 
-        if self.model_idx % self.config.TRAIN.log_freq == 0:
-            self.logger.info(
-                "Test[%d/%d] Taxonomy = %s Sample = %s Losses = %s Metrics = %s"
-                % (
-                    self.model_idx + 1,
-                    self.n_batches,
-                    self.taxonomy_id,
-                    self.model_id,
-                    ["%.4f" % l for l in self.test_losses.val()],
-                    ["%.4f" % m for m in self.metrics],
-                )
-            )
+        # if self.model_idx % self.config.TRAIN.log_freq == 0:
+        #     self.logger.info(
+        #         "Test[%d/%d] Taxonomy = %s Sample = %s Losses = %s Metrics = %s"
+        #         % (
+        #             self.model_idx + 1,
+        #             self.n_batches,
+        #             self.taxonomy_id,
+        #             self.model_id,
+        #             ["%.4f" % l for l in self.test_losses.val()],
+        #             ["%.4f" % m for m in self.metrics],
+        #         )
+        #     )
         self.inference(data)
 
     def val(self):
         """Validation function."""
         self.category_metrics = {}
         self.set_mode("val")
-        self.logger.info(f"Start validating.")
+        # self.logger.info(f"Start validating.")
 
         for items in enumerate(self.val_loader):
             self.model_idx, (taxonomy_id, _, model_id, data) = items
@@ -330,7 +330,7 @@ class BaseRunner(object):
                 )
             elif self.config.TEST.mode == "ML3D":
                
-                output_folder = os.path.join(self.config.DIR.logs, "point_clouds", self.taxonomy_id, f"{self.model_idx}")
+                output_folder = os.path.join(self.config.DIR.out_path, "point_clouds", self.taxonomy_id, f"{self.model_idx}")
                 os.makedirs(
                     output_folder,
                     exist_ok=True,

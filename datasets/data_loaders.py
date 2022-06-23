@@ -140,8 +140,9 @@ class ShapeNetDataLoader(object):
             else 1
         )
         file_list = self._get_file_list(
-            self.cfg, self._get_subset(subset), n_renderings
+            self.cfg, self._get_subset(subset)
         )
+        
         transforms = self._get_transforms(self.cfg, subset)
         return Dataset(
             {
@@ -243,7 +244,11 @@ class ShapeNetDataLoader(object):
                                 % (subset, dc["taxonomy_id"], s),
                             }
                         )
-
+        if subset == "test":
+            if self.cfg.PROJECT.sample_limit != -1:
+                indi = np.random.choice(np.arange(len(file_list)), self.cfg.PROJECT.sample_limit)
+                file_list = [file_list[i] for i in indi]
+                print("#####################################")
         logger.info(
             "Complete collecting files of the dataset. Total files: %d" % len(file_list)
         )

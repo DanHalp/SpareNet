@@ -5,7 +5,7 @@ import os
 import torch
 import logging
 from time import time
-from ..utils.misc import Metrics
+from ..utils.misc import Metrics, var_or_cuda
 from ..cuda.emd import emd_module as emd
 from ..cuda.chamfer_distance import ChamferDistance, ChamferDistanceMean
 from ..runners.misc import AverageMeter
@@ -57,11 +57,11 @@ class sparenetRunner(BaseRunner):
     def val_step(self, items):
         _, (_, _, _, data) = items
         for k, v in data.items():
-            data[k] = um.var_or_cuda(v)
+            data[k] = var_or_cuda(v)
 
         _, refine_ptcloud, _, _, refine_loss, coarse_loss = self.completion(data)
         self.test_losses.update([coarse_loss.item() * 1000, refine_loss.item() * 1000])
-        self.metrics = um.Metrics.get(refine_ptcloud, data["gtcloud"])
+        self.metrics = Metrics.get(refine_ptcloud, data["gtcloud"])
         self.ptcloud = refine_ptcloud
 
     def completion(self, data):
