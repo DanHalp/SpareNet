@@ -10,8 +10,8 @@ import torchvision
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from utils.p2i_utils import ComputeDepthMaps
-from cuda.chamfer_distance import ChamferDistance, ChamferDistanceMean
+from ..utils.p2i_utils import ComputeDepthMaps
+from ..cuda.chamfer_distance import ChamferDistance, ChamferDistanceMean
 
 
 def get_ptcloud_img(ptcloud):

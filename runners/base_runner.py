@@ -13,12 +13,12 @@ import pprint
 import numpy as np
 from time import time
 from copy import deepcopy
-from runners.misc import AverageMeter
-from datasets.data_loaders import data_init
-import utils.misc as um
-import utils.visualizer as uv
-from utils.model_init import generator_init
-from cuda.chamfer_distance import ChamferDistance, ChamferDistanceMean
+from ..runners.misc import AverageMeter
+from ..datasets.data_loaders import data_init
+from ..utils import misc as um
+from ..utils import visualizer as uv
+from ..utils.model_init import generator_init
+from ..cuda.chamfer_distance import ChamferDistance, ChamferDistanceMean
 
 
 class BaseRunner(object):
@@ -344,11 +344,11 @@ class BaseRunner(object):
                 uv.IO._write_pcd_to_obj(output_file_path, pcd)
                 print(f"Saved original point cloud to {output_file_path}")
                 
-                dis = ChamferDistance()(self.ptcloud, data["gtcloud"])
-                indices = dis[0] < dis[0].mean()
+                # dis = ChamferDistance()(self.ptcloud, data["gtcloud"])
+                # indices = dis[0] < dis[0].mean()
              
-                pcd = self.ptcloud[indices].squeeze().cpu().numpy()
-                # pcd = self.ptcloud.squeeze().cpu().numpy()
+                # pcd = self.ptcloud[indices].squeeze().cpu().numpy()
+                pcd = self.ptcloud.squeeze().cpu().numpy()
                 output_file_path = os.path.join(output_folder, "%s_pred.pcd" % self.model_idx)                
                 uv.IO.put(output_file_path, pcd)
                 output_file_path = os.path.join(output_folder, "%s_pred.obj" % self.model_idx)

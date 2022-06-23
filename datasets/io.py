@@ -10,7 +10,7 @@ import h5py
 import numpy as np
 import open3d
 
-from configs.base_config import cfg
+from ..configs.base_config import cfg
 
 
 class IO:

@@ -4,7 +4,7 @@
 # differentiable point cloud rendering
 import math
 import torch
-from cuda.p2i_op import p2i
+from ..cuda.p2i_op import p2i
 
 N_VIEWS_PREDEFINED = 8
 

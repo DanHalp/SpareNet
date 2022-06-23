@@ -8,8 +8,8 @@ from enum import Enum, unique
 import numpy as np
 import torch.utils.data.dataset
 from tqdm import tqdm
-import datasets.data_transforms
-from datasets.io import IO
+from ..datasets import data_transforms
+from ..datasets.io import IO
 
 logger = logging.getLogger()
 
@@ -154,7 +154,7 @@ class ShapeNetDataLoader(object):
 
     def _get_transforms(self, cfg, subset):
         if subset == DatasetSubset.TRAIN:
-            return datasets.data_transforms.Compose(
+            return data_transforms.Compose(
                 [
                     {
                         "callback": "RandomSamplePoints",
@@ -174,7 +174,7 @@ class ShapeNetDataLoader(object):
                 ]
             )
         else:
-            return datasets.data_transforms.Compose(
+            return data_transforms.Compose(
                 [
                     {
                         "callback": "RandomSamplePoints",

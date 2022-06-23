@@ -5,9 +5,9 @@ import os
 import torch
 import logging
 import numpy as np
-import configs.model_names as name
-from utils.p2i_utils import ComputeDepthMaps
-from models.sparenet_discriminator import ProjectionD, PatchDiscriminator
+from ..configs import model_names as name
+from ..utils.p2i_utils import ComputeDepthMaps
+from ..models.sparenet_discriminator import ProjectionD, PatchDiscriminator
 
 logger = logging.getLogger()
 
@@ -93,7 +93,7 @@ def discriminator_init(cfg):
 
 def define_G(cfg):
     if cfg.NETWORK.model_type == name.MODEL_SPARENET:
-        from models.sparenet_generator import SpareNetGenerator
+        from ..models.sparenet_generator import SpareNetGenerator
 
         # from models.mvnet import MVNet
         network = SpareNetGenerator(
@@ -107,7 +107,7 @@ def define_G(cfg):
         )
 
     elif cfg.NETWORK.model_type == name.MODEL_ATLASNET:
-        from models.atlasnet_generator import AtlasNet
+        from ..models.atlasnet_generator import AtlasNet
 
         network = AtlasNet(
             num_points=cfg.DATASET.n_outpoints,
@@ -116,7 +116,7 @@ def define_G(cfg):
         )
 
     elif cfg.NETWORK.model_type == name.MODEL_MSN:
-        from models.msn_generator import MSN
+        from ..models.msn_generator import MSN
 
         network = MSN(
             num_points=cfg.DATASET.n_outpoints,
@@ -125,7 +125,7 @@ def define_G(cfg):
         )
 
     elif cfg.NETWORK.model_type == name.MODEL_GRNET:
-        from models.grnet_generator import GRNet
+        from ..models.grnet_generator import GRNet
 
         network = GRNet(cfg)
 

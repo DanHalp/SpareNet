@@ -6,8 +6,8 @@ import torch
 import open3d
 import logging
 from tensorboardX import SummaryWriter
-import cuda.emd.emd_module as emd
-from cuda.chamfer_distance import ChamferDistanceMean
+from ..cuda.emd import emd_module as emd
+from ..cuda.chamfer_distance import ChamferDistanceMean
 
 logger = logging.getLogger()
 
