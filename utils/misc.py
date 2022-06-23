@@ -28,8 +28,8 @@ def gpu_init(cfg):
         gup_ids: list
     """
     # Set up folders for checkpoints
-    if not os.path.exists(cfg.DIR.checkpoints):
-        os.makedirs(cfg.DIR.checkpoints)
+    # if not os.path.exists(cfg.DIR.checkpoints):
+    #     os.makedirs(cfg.DIR.checkpoints)
     # GPU setup
     torch.backends.cudnn.benchmark = True
     gup_ids = [int(x) for x in cfg.CONST.device.split(",")]

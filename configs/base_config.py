@@ -160,8 +160,8 @@ def cfg_update(args):
     if args.weights is not None:
         cfg.CONST.weights = args.weights
     cfg.CONST.device = args.gpu_id
-    if args.workdir is not None:
-        cfg.DIR.out_path = args.workdir
+    if args.output is not None:
+        cfg.DIR.out_path = args.output
 
     # set up folders for logs and checkpoints
     output_dir = os.path.join(

@@ -31,9 +31,9 @@ class BaseRunner(object):
         self.work_dir = self.config.DIR.out_path
         os.makedirs(self.work_dir, exist_ok=True)
 
-        self.logger.info("Running Configuration:")
+        # self.logger.info("Running Configuration:")
         config_str = pprint.pformat(self.config)
-        self.logger.info("\n" + config_str)
+        # self.logger.info("\n" + config_str)
         with open(os.path.join(self.work_dir, "config.yaml"), "w") as f:
             f.write(yaml.dump(vars(self.config)))
 
@@ -73,7 +73,7 @@ class BaseRunner(object):
         self.train_time = AverageMeter()
         self.val_time = AverageMeter()
 
-        self.build_writer()
+        # self.build_writer()
         self.build_dataset()
         self.build_models()
         self.data_parallel()
@@ -92,7 +92,7 @@ class BaseRunner(object):
     def build_dataset(self):
         """Builds train/val dataset."""
         self.train_loader, self.val_loader = data_init(self.config)
-        self.logger.info(f"Finish building dataset.")
+        # self.logger.info(f"Finish building dataset.")
 
     def build_models(self):
         """Builds models, optimizers, and learning rate schedulers."""

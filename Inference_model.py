@@ -8,7 +8,7 @@ from .configs.base_config import cfg, cfg_from_file, cfg_update
 from .utils.misc import set_logger
 from .runners.sparenet_runner import sparenetRunner
 
-def get_args_from_command_line():
+def get_args_from_command_line(additional_args):
     """
     config the parameter
     """
@@ -18,28 +18,30 @@ def get_args_from_command_line():
     parser.add_argument("--model", type=str, default="sparenet", help="sparenet, atlasnet, msn, grnet")
 
     # choose test mode
-    parser.add_argument("--test_mode", default="default", help="default, vis, render, kitti", type=str)
+    parser.add_argument("--test_mode", default=additional_args.get("test_mode", "default"), help="default, vis, render, kitti", type=str)
 
     # choose load model
-    parser.add_argument("--weights", dest="weights", help="Initialize network from the weights file", default=None)
+    parser.add_argument("--weights", dest="weights", help="Initialize network from the weights file", default=additional_args.get("ckpt", None))
 
     # setup gpu
     parser.add_argument("--gpu", dest="gpu_id", help="GPU device to use", default="0", type=str)
 
     # setup workdir
-    parser.add_argument("--workdir", dest="workdir", help="where to save files", default="./output", type=str)
+    parser.add_argument("--output", help="where to save files", default=additional_args.get("output", "/home/halperin/ML3D/Outputs/Completion"), type=str)
 
     # choose train mode
     parser.add_argument("--gan", dest="gan", help="use gan", action="store_true", default=False)
     parser.add_argument("--local_dir", type=str, default="/home/halperin/ML3D/SpareNet", help="sparenet, atlasnet, msn, grnet")
+    
+    
     return parser.parse_args()
 
 
 
 class SpareNet():
     
-    def get_model(self):
-        args = get_args_from_command_line()
+    def get_model(self, args=dict()):
+        args = get_args_from_command_line(args)
 
         # Set GPU to use
         os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -53,14 +55,13 @@ class SpareNet():
         output_dir = cfg_update(args)
 
         # Set up folders for logs and checkpoints
-        if not os.path.exists(cfg.DIR.logs):
-            os.makedirs(cfg.DIR.logs)
-        
+        # if not os.path.exists(cfg.DIR.logs):
+        #     os.makedirs(cfg.DIR.logs)
 
-        logger = set_logger(os.path.join(cfg.DIR.logs, "log.txt"))
-        logger.info("save into dir: %s" % cfg.DIR.logs)
+        # logger = set_logger(os.path.join(cfg.DIR.logs, "log.txt"))
+        # logger.info("save into dir: %s" % cfg.DIR.logs)
 
-        model = sparenetRunner(cfg, logger)
+        model = sparenetRunner(cfg, logger=None)
 
         # model.test()
         return model
