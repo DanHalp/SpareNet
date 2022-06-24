@@ -40,34 +40,20 @@ def get_args_from_command_line(additional_args):
         if k not in args:
             parser.add_argument('--' + k, default=v)
     return parser.parse_args()
-    
-    
+
 class SpareNet():
     
     def __init__(self, args) -> None:
-        self.model = self.make_model(args)
-
+        self._model, self._cfg  = self.make_model(args)
+        
     
     def make_model(self, args=dict()):
         args = get_args_from_command_line(args)
-
-        # Set GPU to use
-        os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-        os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu_id
-
-        # update config
         
         cfg_from_file(args.local_dir + "/configs/" + args.model + ".yaml")
         if args.test_mode is not None:
             cfg.TEST.mode = args.test_mode
         output_dir = cfg_update(args)
-
-        # Set up folders for logs and checkpoints
-        # if not os.path.exists(cfg.DIR.logs):
-        #     os.makedirs(cfg.DIR.logs)
-
-        # logger = set_logger(os.path.join(cfg.DIR.logs, "log.txt"))
-        # logger.info("save into dir: %s" % cfg.DIR.logs)
 
         # Add project arguments to cfg
         cfg["PROJECT"] = EasyDict()
@@ -81,11 +67,16 @@ class SpareNet():
             model = grnetRunner(cfg, logger=None)
         else:
             raise Exception("--model is not a valid model name")
-        return model
+
+        return model, cfg
 
     @property
-    def get_model(self):
-        return self.model
+    def model(self):
+        return self._model
+    
+    @property
+    def cfg(self):
+        return self._cfg
 
     def test(self):
         self.model.test()
