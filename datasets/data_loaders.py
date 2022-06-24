@@ -244,11 +244,14 @@ class ShapeNetDataLoader(object):
                                 % (subset, dc["taxonomy_id"], s),
                             }
                         )
-        if subset == "test":
-            if self.cfg.PROJECT.sample_limit != -1:
-                indi = np.random.choice(np.arange(len(file_list)), self.cfg.PROJECT.sample_limit)
-                file_list = [file_list[i] for i in indi]
-                print("#####################################")
+                        
+        if subset == "test" and self.cfg.PROJECT.sample_limit != -1:
+            indi = np.arange(len(file_list))
+            if self.cfg.PROJECT.random_samples:
+                indi = np.random.permutation(indi)
+            indi = indi[:self.cfg.PROJECT.sample_limit]
+            file_list = [file_list[i] for i in indi]
+                
         logger.info(
             "Complete collecting files of the dataset. Total files: %d" % len(file_list)
         )

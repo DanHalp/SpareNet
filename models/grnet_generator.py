@@ -2,8 +2,8 @@
 # Licensed under the MIT License.
 
 import torch
-from cuda.gridding import Gridding, GriddingReverse
-from cuda.cubic_feature_sampling import CubicFeatureSampling
+from ..cuda.gridding import Gridding, GriddingReverse
+from ..cuda.cubic_feature_sampling import CubicFeatureSampling
 
 class GRNet(torch.nn.Module):
     def __init__(self, cfg):

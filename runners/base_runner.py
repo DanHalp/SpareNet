@@ -175,19 +175,6 @@ class BaseRunner(object):
         if self.taxonomy_id not in self.category_metrics:
             self.category_metrics[self.taxonomy_id] = AverageMeter(um.Metrics.names())
         self.category_metrics[self.taxonomy_id].update(self.metrics)
-
-        # if self.model_idx % self.config.TRAIN.log_freq == 0:
-        #     self.logger.info(
-        #         "Test[%d/%d] Taxonomy = %s Sample = %s Losses = %s Metrics = %s"
-        #         % (
-        #             self.model_idx + 1,
-        #             self.n_batches,
-        #             self.taxonomy_id,
-        #             self.model_id,
-        #             ["%.4f" % l for l in self.test_losses.val()],
-        #             ["%.4f" % m for m in self.metrics],
-        #         )
-        #     )
         self.inference(data)
 
     def val(self):
@@ -246,7 +233,8 @@ class BaseRunner(object):
             self.val_writer,
             self.test_losses,
         )
-        self.models_save()
+        if self.config.PROJECT.save:
+            self.models_save()
 
     def build_train_loss(self):
         """build_train_loss"""
@@ -330,35 +318,34 @@ class BaseRunner(object):
                 )
             elif self.config.TEST.mode == "ML3D":
                
-                output_folder = os.path.join(self.config.DIR.out_path, "point_clouds", self.taxonomy_id, f"{self.model_idx}")
-                os.makedirs(
-                    output_folder,
-                    exist_ok=True,
-                )
+                output_folder_pcd = os.path.join(self.config.DIR.out_path, self.config.PROJECT.model,"point_clouds", self.taxonomy_id, f"{self.model_idx}")
+                output_folder_mesh = os.path.join(self.config.DIR.out_path, self.config.PROJECT.model, "meshlab", self.taxonomy_id, f"{self.model_idx}")
+                os.makedirs(                    output_folder_pcd,                    exist_ok=True,                )
+                os.makedirs(                    output_folder_mesh,                   exist_ok=True,                )
                 
                 
                 pcd = data["partial_cloud"].squeeze().cpu().numpy()
-                output_file_path = os.path.join(output_folder, "%s_orig.pcd" % self.model_idx)
+                output_file_path = os.path.join(output_folder_pcd, "%s_partial.pcd" % self.model_idx)
                 uv.IO.put(output_file_path, pcd)
-                output_file_path = os.path.join(output_folder, "%s_orig.obj" % self.model_idx)
+                output_file_path = os.path.join(output_folder_mesh, "%s_partial.obj" % self.model_idx)
                 uv.IO._write_pcd_to_obj(output_file_path, pcd)
                 print(f"Saved original point cloud to {output_file_path}")
                 
-                # dis = ChamferDistance()(self.ptcloud, data["gtcloud"])
-                # indices = dis[0] < dis[0].mean()
+                dis = ChamferDistance()(self.ptcloud, data["gtcloud"])
+                indices = dis[0] <= dis[0].mean()
              
-                # pcd = self.ptcloud[indices].squeeze().cpu().numpy()
-                pcd = self.ptcloud.squeeze().cpu().numpy()
-                output_file_path = os.path.join(output_folder, "%s_pred.pcd" % self.model_idx)                
+                pcd = self.ptcloud[indices].squeeze().cpu().numpy()
+                # pcd = self.ptcloud.squeeze().cpu().numpy()
+                output_file_path = os.path.join(output_folder_pcd, "%s_pred.pcd" % self.model_idx)
                 uv.IO.put(output_file_path, pcd)
-                output_file_path = os.path.join(output_folder, "%s_pred.obj" % self.model_idx)
+                output_file_path = os.path.join(output_folder_mesh, "%s_pred.obj" % self.model_idx)
                 uv.IO._write_pcd_to_obj(output_file_path, pcd)
                 print(f"Saved predicted point cloud to {output_file_path}")
                 
                 pcd = data["gtcloud"].squeeze().cpu().numpy()
-                output_file_path = os.path.join(output_folder, "%s_gt.pcd" % self.model_idx)                
+                output_file_path = os.path.join(output_folder_pcd, "%s_gt.pcd" % self.model_idx)
                 uv.IO.put(output_file_path, pcd)
-                output_file_path = os.path.join(output_folder, "%s_gt.obj" % self.model_idx)
+                output_file_path = os.path.join(output_folder_mesh, "%s_gt.obj" % self.model_idx)
                 uv.IO._write_pcd_to_obj(output_file_path, pcd)
                 print(f"Saved ground_truth point cloud to {output_file_path}")
                 
@@ -386,6 +373,7 @@ class BaseRunner(object):
             self.epoch_idx = -1
             self.val()
             self.end_time = time()
-            self.logger.info("test time: %3f" % (self.end_time - self.start_time))
-            self.train_writer.close()
-            self.val_writer.close()
+            if self.logger:
+                self.logger.info("test time: %3f" % (self.end_time - self.start_time))
+                self.train_writer.close()
+                self.val_writer.close()

@@ -5,11 +5,11 @@ import os
 import torch
 import logging
 from time import time
-import utils.misc as um
-import cuda.emd.emd_module as emd
-from cuda.chamfer_distance import ChamferDistanceMean
-from runners.misc import AverageMeter
-from runners.base_runner import BaseRunner
+from ..utils import misc as um
+from ..cuda.emd import emd_module as emd
+from ..cuda.chamfer_distance import ChamferDistanceMean
+from ..runners.misc import AverageMeter
+from ..runners.base_runner import BaseRunner
 
 
 class grnetRunner(BaseRunner):

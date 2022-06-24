@@ -72,7 +72,12 @@ def model_load(cfg, net_G):
         checkpoint = torch.load(cfg.CONST.weights)
         best_metrics = Metrics(cfg.TEST.metric_name, checkpoint["best_metrics"])
         init_epoch = checkpoint["epoch_index"]
-        net_G.load_state_dict(checkpoint["net_G"])  # change into net_G!!
+        
+        model_name = "net_G"
+        if cfg.PROJECT.model == "grnet":
+            model_name = "grnet"
+        
+        net_G.load_state_dict(checkpoint[model_name])  # change into net_G!!
         logger.info("Recover complete. Current epoch = #%d; best metrics = %s." % (init_epoch, best_metrics))
     return init_epoch, best_metrics
 
