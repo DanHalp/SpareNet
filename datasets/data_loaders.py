@@ -8,8 +8,8 @@ from enum import Enum, unique
 import numpy as np
 import torch.utils.data.dataset
 from tqdm import tqdm
-import datasets.data_transforms
-from datasets.io import IO
+from ..datasets import data_transforms
+from ..datasets.io import IO
 
 logger = logging.getLogger()
 
@@ -140,8 +140,9 @@ class ShapeNetDataLoader(object):
             else 1
         )
         file_list = self._get_file_list(
-            self.cfg, self._get_subset(subset), n_renderings
+            self.cfg, self._get_subset(subset)
         )
+        
         transforms = self._get_transforms(self.cfg, subset)
         return Dataset(
             {
@@ -154,7 +155,7 @@ class ShapeNetDataLoader(object):
 
     def _get_transforms(self, cfg, subset):
         if subset == DatasetSubset.TRAIN:
-            return datasets.data_transforms.Compose(
+            return data_transforms.Compose(
                 [
                     {
                         "callback": "RandomSamplePoints",
@@ -174,7 +175,7 @@ class ShapeNetDataLoader(object):
                 ]
             )
         else:
-            return datasets.data_transforms.Compose(
+            return data_transforms.Compose(
                 [
                     {
                         "callback": "RandomSamplePoints",
@@ -243,7 +244,14 @@ class ShapeNetDataLoader(object):
                                 % (subset, dc["taxonomy_id"], s),
                             }
                         )
-
+                        
+        if subset == "test" and self.cfg.PROJECT.sample_limit != -1:
+            indi = np.arange(len(file_list))
+            if self.cfg.PROJECT.random_samples:
+                indi = np.random.permutation(indi)
+            indi = indi[:self.cfg.PROJECT.sample_limit]
+            file_list = [file_list[i] for i in indi]
+                
         logger.info(
             "Complete collecting files of the dataset. Total files: %d" % len(file_list)
         )

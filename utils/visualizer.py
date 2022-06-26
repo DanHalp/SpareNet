@@ -10,8 +10,8 @@ import torchvision
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from utils.p2i_utils import ComputeDepthMaps
-from cuda.chamfer_distance import ChamferDistance, ChamferDistanceMean
+from ..utils.p2i_utils import ComputeDepthMaps
+from ..cuda.chamfer_distance import ChamferDistance, ChamferDistanceMean
 
 
 def get_ptcloud_img(ptcloud):
@@ -118,8 +118,8 @@ def print_table(
         for i, metric in enumerate(test_metrics.items):
             test_writer.add_scalar("Metric/%s" % metric, test_metrics.avg(i), epoch_idx)
 
-    with open(os.path.join(cfg.DIR.logs, "test.txt"), "a") as f:
-        f.write("json_stats: " + json.dumps(log_table) + "\n")
+    # with open(os.path.join(cfg.DIR.logs, "test.txt"), "a") as f:
+    #     f.write("json_stats: " + json.dumps(log_table) + "\n")
 
 
 def tensorflow_save_image(

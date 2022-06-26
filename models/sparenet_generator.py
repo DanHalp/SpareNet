@@ -5,8 +5,8 @@ import torch
 import torch.nn as nn
 import numpy as np
 import torch.nn.functional as F
-import cuda.MDS.MDS_module as MDS_module
-import cuda.expansion_penalty.expansion_penalty_module as expansion
+from ..cuda.MDS import MDS_module as MDS_module
+from ..cuda.expansion_penalty import expansion_penalty_module as expansion
 
 
 class SpareNetGenerator(nn.Module):

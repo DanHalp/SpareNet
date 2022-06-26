@@ -97,9 +97,9 @@ __C.DATASETS.shapenet.n_renderings = 8
 __C.DATASETS.shapenet.n_points = 16384
 # 'GRnet' or 'ShapeNet' version dataset
 __C.DATASETS.shapenet.version = "GRnet"
-__C.DATASETS.shapenet.category_file_path = "./datasets/data/ShapeNet.json"
-__C.DATASETS.shapenet.partial_points_path = "/home/halperin/SpareNet/data/ShapeNetCompletion/%s/partial/%s/%s/%02d.pcd"
-__C.DATASETS.shapenet.complete_points_path = "/home/halperin/SpareNet/data/ShapeNetCompletion/%s/complete/%s/%s.pcd"
+__C.DATASETS.shapenet.category_file_path = "/home/halperin/ML3D/SpareNet/datasets/data/ShapeNet.json"
+__C.DATASETS.shapenet.partial_points_path = "/home/halperin/ML3D/dataset/ShapeNetCompletion/%s/partial/%s/%s/%02d.pcd"
+__C.DATASETS.shapenet.complete_points_path = "/home/halperin/ML3D/dataset/ShapeNetCompletion/%s/complete/%s/%s.pcd"
 __C.DATASETS.completion3d = edict()
 __C.DATASETS.completion3d.category_file_path = "/path/to/datasets/data/Completion3D.json"
 __C.DATASETS.completion3d.partial_points_path = "/path/to/datasets/completion3d/data/shapenet/%s/partial/%s/%s.h5"
@@ -160,8 +160,8 @@ def cfg_update(args):
     if args.weights is not None:
         cfg.CONST.weights = args.weights
     cfg.CONST.device = args.gpu_id
-    if args.workdir is not None:
-        cfg.DIR.out_path = args.workdir
+    if args.output is not None:
+        cfg.DIR.out_path = args.output
 
     # set up folders for logs and checkpoints
     output_dir = os.path.join(

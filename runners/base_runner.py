@@ -13,11 +13,12 @@ import pprint
 import numpy as np
 from time import time
 from copy import deepcopy
-from runners.misc import AverageMeter
-from datasets.data_loaders import data_init
-import utils.misc as um
-import utils.visualizer as uv
-from utils.model_init import generator_init
+from ..runners.misc import AverageMeter
+from ..datasets.data_loaders import data_init
+from ..utils import misc as um
+from ..utils import visualizer as uv
+from ..utils.model_init import generator_init
+from ..cuda.chamfer_distance import ChamferDistance, ChamferDistanceMean
 
 
 class BaseRunner(object):
@@ -30,9 +31,9 @@ class BaseRunner(object):
         self.work_dir = self.config.DIR.out_path
         os.makedirs(self.work_dir, exist_ok=True)
 
-        self.logger.info("Running Configuration:")
+        # self.logger.info("Running Configuration:")
         config_str = pprint.pformat(self.config)
-        self.logger.info("\n" + config_str)
+        # self.logger.info("\n" + config_str)
         with open(os.path.join(self.work_dir, "config.yaml"), "w") as f:
             f.write(yaml.dump(vars(self.config)))
 
@@ -72,7 +73,7 @@ class BaseRunner(object):
         self.train_time = AverageMeter()
         self.val_time = AverageMeter()
 
-        self.build_writer()
+        # self.build_writer()
         self.build_dataset()
         self.build_models()
         self.data_parallel()
@@ -91,7 +92,7 @@ class BaseRunner(object):
     def build_dataset(self):
         """Builds train/val dataset."""
         self.train_loader, self.val_loader = data_init(self.config)
-        self.logger.info(f"Finish building dataset.")
+        # self.logger.info(f"Finish building dataset.")
 
     def build_models(self):
         """Builds models, optimizers, and learning rate schedulers."""
@@ -174,29 +175,17 @@ class BaseRunner(object):
         if self.taxonomy_id not in self.category_metrics:
             self.category_metrics[self.taxonomy_id] = AverageMeter(um.Metrics.names())
         self.category_metrics[self.taxonomy_id].update(self.metrics)
-
-        if self.model_idx % self.config.TRAIN.log_freq == 0:
-            self.logger.info(
-                "Test[%d/%d] Taxonomy = %s Sample = %s Losses = %s Metrics = %s"
-                % (
-                    self.model_idx + 1,
-                    self.n_batches,
-                    self.taxonomy_id,
-                    self.model_id,
-                    ["%.4f" % l for l in self.test_losses.val()],
-                    ["%.4f" % m for m in self.metrics],
-                )
-            )
         self.inference(data)
 
     def val(self):
         """Validation function."""
         self.category_metrics = {}
         self.set_mode("val")
-        self.logger.info(f"Start validating.")
+        # self.logger.info(f"Start validating.")
 
         for items in enumerate(self.val_loader):
             self.model_idx, (taxonomy_id, _, model_id, data) = items
+            print(self.model_idx)
             self.taxonomy_id = (
                 taxonomy_id[0]
                 if isinstance(taxonomy_id[0], str)
@@ -210,6 +199,7 @@ class BaseRunner(object):
             self.val_time.update(time() - val_start_time)
             self.save_item_val_info(data)
 
+        
         self.metrics = um.Metrics(self.config.TEST.metric_name, self.test_metrics.avg())
         self.val_finish()
 
@@ -243,7 +233,8 @@ class BaseRunner(object):
             self.val_writer,
             self.test_losses,
         )
-        self.models_save()
+        if self.config.PROJECT.save:
+            self.models_save()
 
     def build_train_loss(self):
         """build_train_loss"""
@@ -257,7 +248,7 @@ class BaseRunner(object):
         for k, v in data.items():
             data[k] = v.float().to(self.gpu_ids[0])
 
-        if self.model_idx % self.config.TEST.infer_freq == 0:
+        if (self.model_idx % self.config.TEST.infer_freq == 0) or self.config.TEST.mode == "ML3D":
 
             if self.config.TEST.mode == "default":
                 uv.tensorflow_save_image(
@@ -326,28 +317,38 @@ class BaseRunner(object):
                     )
                 )
             elif self.config.TEST.mode == "ML3D":
-                output_folder = os.path.join(self.config.DIR.logs, "point_clouds", self.taxonomy_id, f"{self.model_idx}")
-                os.makedirs(
-                    output_folder,
-                    exist_ok=True,
-                )
+               
+                output_folder_pcd = os.path.join(self.config.DIR.out_path, self.config.PROJECT.model,"point_clouds", self.taxonomy_id, f"{self.model_idx}")
+                output_folder_mesh = os.path.join(self.config.DIR.out_path, self.config.PROJECT.model, "meshlab", self.taxonomy_id, f"{self.model_idx}")
+                os.makedirs(                    output_folder_pcd,                    exist_ok=True,                )
+                os.makedirs(                    output_folder_mesh,                   exist_ok=True,                )
+                
                 
                 pcd = data["partial_cloud"].squeeze().cpu().numpy()
-                output_file_path = os.path.join(output_folder, "%s_orig.pcd" % self.model_idx)
+                output_file_path = os.path.join(output_folder_pcd, "%s_partial.pcd" % self.model_idx)
                 uv.IO.put(output_file_path, pcd)
-                output_file_path = os.path.join(output_folder, "%s_orig.obj" % self.model_idx)
+                output_file_path = os.path.join(output_folder_mesh, "%s_partial.obj" % self.model_idx)
                 uv.IO._write_pcd_to_obj(output_file_path, pcd)
                 print(f"Saved original point cloud to {output_file_path}")
                 
-                pcd = self.ptcloud.squeeze().cpu().numpy()
-                output_file_path = os.path.join(output_folder, "%s_pred.pcd" % self.model_idx)                
+                dis = ChamferDistance()(self.ptcloud, data["gtcloud"])
+                indices = dis[0] <= dis[0].mean()
+             
+                pcd = self.ptcloud[indices].squeeze().cpu().numpy()
+                # pcd = self.ptcloud.squeeze().cpu().numpy()
+                output_file_path = os.path.join(output_folder_pcd, "%s_pred.pcd" % self.model_idx)
                 uv.IO.put(output_file_path, pcd)
-                output_file_path = os.path.join(output_folder, "%s_pred.obj" % self.model_idx)
+                output_file_path = os.path.join(output_folder_mesh, "%s_pred.obj" % self.model_idx)
                 uv.IO._write_pcd_to_obj(output_file_path, pcd)
                 print(f"Saved predicted point cloud to {output_file_path}")
                 
-                exit()
-
+                pcd = data["gtcloud"].squeeze().cpu().numpy()
+                output_file_path = os.path.join(output_folder_pcd, "%s_gt.pcd" % self.model_idx)
+                uv.IO.put(output_file_path, pcd)
+                output_file_path = os.path.join(output_folder_mesh, "%s_gt.obj" % self.model_idx)
+                uv.IO._write_pcd_to_obj(output_file_path, pcd)
+                print(f"Saved ground_truth point cloud to {output_file_path}")
+                
     def runner(self):
         """Runner"""
         self.start_time = time()
@@ -372,6 +373,7 @@ class BaseRunner(object):
             self.epoch_idx = -1
             self.val()
             self.end_time = time()
-            self.logger.info("test time: %3f" % (self.end_time - self.start_time))
-            self.train_writer.close()
-            self.val_writer.close()
+            if self.logger:
+                self.logger.info("test time: %3f" % (self.end_time - self.start_time))
+                self.train_writer.close()
+                self.val_writer.close()

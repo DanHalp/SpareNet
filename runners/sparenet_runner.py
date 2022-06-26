@@ -5,11 +5,11 @@ import os
 import torch
 import logging
 from time import time
-import utils.misc as um
-import cuda.emd.emd_module as emd
-from cuda.chamfer_distance import ChamferDistance, ChamferDistanceMean
-from runners.misc import AverageMeter
-from runners.base_runner import BaseRunner
+from ..utils.misc import Metrics, var_or_cuda
+from ..cuda.emd import emd_module as emd
+from ..cuda.chamfer_distance import ChamferDistance, ChamferDistanceMean
+from ..runners.misc import AverageMeter
+from ..runners.base_runner import BaseRunner
 
 
 class sparenetRunner(BaseRunner):
@@ -19,7 +19,7 @@ class sparenetRunner(BaseRunner):
         super().__init__(config, logger)
         self.losses = AverageMeter(["CoarseLoss", "RefineLoss"])
         self.test_losses = AverageMeter(["CoarseLoss", "RefineLoss"])
-        self.test_metrics = AverageMeter(um.Metrics.names())
+        self.test_metrics = AverageMeter(Metrics.names())
         self.chamfer_dist = None
         self.chamfer_dist_mean = None
         self.emd_dist = None
@@ -57,11 +57,11 @@ class sparenetRunner(BaseRunner):
     def val_step(self, items):
         _, (_, _, _, data) = items
         for k, v in data.items():
-            data[k] = um.var_or_cuda(v)
+            data[k] = var_or_cuda(v)
 
         _, refine_ptcloud, _, _, refine_loss, coarse_loss = self.completion(data)
         self.test_losses.update([coarse_loss.item() * 1000, refine_loss.item() * 1000])
-        self.metrics = um.Metrics.get(refine_ptcloud, data["gtcloud"])
+        self.metrics = Metrics.get(refine_ptcloud, data["gtcloud"])
         self.ptcloud = refine_ptcloud
 
     def completion(self, data):

@@ -6,8 +6,8 @@ import torch
 import open3d
 import logging
 from tensorboardX import SummaryWriter
-import cuda.emd.emd_module as emd
-from cuda.chamfer_distance import ChamferDistanceMean
+from ..cuda.emd import emd_module as emd
+from ..cuda.chamfer_distance import ChamferDistanceMean
 
 logger = logging.getLogger()
 
@@ -28,8 +28,8 @@ def gpu_init(cfg):
         gup_ids: list
     """
     # Set up folders for checkpoints
-    if not os.path.exists(cfg.DIR.checkpoints):
-        os.makedirs(cfg.DIR.checkpoints)
+    # if not os.path.exists(cfg.DIR.checkpoints):
+    #     os.makedirs(cfg.DIR.checkpoints)
     # GPU setup
     torch.backends.cudnn.benchmark = True
     gup_ids = [int(x) for x in cfg.CONST.device.split(",")]
@@ -72,7 +72,12 @@ def model_load(cfg, net_G):
         checkpoint = torch.load(cfg.CONST.weights)
         best_metrics = Metrics(cfg.TEST.metric_name, checkpoint["best_metrics"])
         init_epoch = checkpoint["epoch_index"]
-        net_G.load_state_dict(checkpoint["net_G"])  # change into net_G!!
+        
+        model_name = "net_G"
+        if cfg.PROJECT.model == "grnet":
+            model_name = "grnet"
+        
+        net_G.load_state_dict(checkpoint[model_name])  # change into net_G!!
         logger.info("Recover complete. Current epoch = #%d; best metrics = %s." % (init_epoch, best_metrics))
     return init_epoch, best_metrics
 
