@@ -97,13 +97,13 @@ __C.DATASETS.shapenet.n_renderings = 8
 __C.DATASETS.shapenet.n_points = 16384
 # 'GRnet' or 'ShapeNet' version dataset
 __C.DATASETS.shapenet.version = "GRnet"
-__C.DATASETS.shapenet.category_file_path = "/home/halperin/ML3D/SpareNet/datasets/data/ShapeNet.json"
-__C.DATASETS.shapenet.partial_points_path = "/home/halperin/ML3D/dataset/ShapeNetCompletion/%s/partial/%s/%s/%02d.pcd"
-__C.DATASETS.shapenet.complete_points_path = "/home/halperin/ML3D/dataset/ShapeNetCompletion/%s/complete/%s/%s.pcd"
+__C.DATASETS.shapenet.category_file_path = "/home/danha/PCD-Reconstruction-and-Registration/SpareNet/datasets/data/ShapeNet.json"
+__C.DATASETS.shapenet.partial_points_path = "/home/danha/PCD-Reconstruction-and-Registration/data/ShapeNetCompletion/%s/partial/%s/%s/%02d.pcd"
+__C.DATASETS.shapenet.complete_points_path = "/home/danha/PCD-Reconstruction-and-Registration/data/ShapeNetCompletion/%s/complete/%s/%s.pcd"
 __C.DATASETS.completion3d = edict()
 __C.DATASETS.completion3d.category_file_path = "/path/to/datasets/data/Completion3D.json"
-__C.DATASETS.completion3d.partial_points_path = "/path/to/datasets/completion3d/data/shapenet/%s/partial/%s/%s.h5"
-__C.DATASETS.completion3d.complete_points_path = "/path/to/datasets/completion3d/data/shapenet/%s/gt/%s/%s.h5"
+__C.DATASETS.completion3d.partial_points_path = "/home/danha/PCD-Reconstruction-and-Registration/data/ShapeNetCompletion/%s/partial/%s/%s.h5"
+__C.DATASETS.completion3d.complete_points_path = "/home/danha/PCD-Reconstruction-and-Registration/data/ShapeNetCompletion/%s/gt/%s/%s.h5"
 __C.DATASETS.kitti = edict()
 __C.DATASETS.kitti.category_file_path = "/path/to/datasets/data/KITTI.json"
 __C.DATASETS.kitti.partial_points_path = "/path/to/datasets/KITTI/cars/%s.pcd"
@@ -157,11 +157,11 @@ def cfg_from_file(filename):
 def cfg_update(args):
     """Overwrite the hyperparameters in cfg."""
     # the path of model
-    if args.weights is not None:
-        cfg.CONST.weights = args.weights
-    cfg.CONST.device = args.gpu_id
-    if args.output is not None:
-        cfg.DIR.out_path = args.output
+    if args.RECONSTRUCTION.ckpt is not None:
+        cfg.CONST.weights = args.RECONSTRUCTION.ckpt
+    cfg.CONST.device = args.RECONSTRUCTION.gpu
+    if args.RECONSTRUCTION.output is not None:
+        cfg.DIR.out_path = args.RECONSTRUCTION.output
 
     # set up folders for logs and checkpoints
     output_dir = os.path.join(

@@ -48,17 +48,17 @@ class SpareNet():
         
     
     def make_model(self, args=dict()):
-        args = get_args_from_command_line(args)
+        # args = get_args_from_command_line(args)
         
-        cfg_from_file(args.local_dir + "/configs/" + args.model + ".yaml")
-        if args.test_mode is not None:
-            cfg.TEST.mode = args.test_mode
+        cfg_from_file(args.RECONSTRUCTION.local_dir + "/configs/" + args.RECONSTRUCTION.model + ".yaml")
+        if args.RECONSTRUCTION.test_mode is not None:
+            cfg.TEST.mode = args.RECONSTRUCTION.test_mode
         output_dir = cfg_update(args)
 
         # Add project arguments to cfg
         cfg["PROJECT"] = EasyDict()
-        for k, v in vars(args).items():
-            cfg["PROJECT"][k] = v
+        for k, v in args.items():
+            cfg["PROJECT"].update(v)
         # model.test()
         
         if cfg.PROJECT.model == "sparenet":
