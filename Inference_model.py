@@ -57,16 +57,18 @@ class SpareNet():
 
         # Add project arguments to cfg
         cfg["PROJECT"] = EasyDict()
-        for k, v in args.items():
-            cfg["PROJECT"].update(v)
+        #for k, v in args.items():
+        cfg["PROJECT"].update(args["RECONSTRUCTION"])
+        #    break
         # model.test()
+
         
         if cfg.PROJECT.model == "sparenet":
             model = sparenetRunner(cfg, logger=None)
         elif cfg.PROJECT.model == "grnet":
             model = grnetRunner(cfg, logger=None)
         else:
-            raise Exception("--model is not a valid model name")
+            raise Exception("--model is not a valid model name: {}".format(cfg.PROJECT.model))
 
         return model, cfg
 
