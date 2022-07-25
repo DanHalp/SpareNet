@@ -4,6 +4,8 @@
 import os
 import sys
 import argparse
+
+import torch
 from .configs.base_config import cfg, cfg_from_file, cfg_update
 from .utils.misc import set_logger
 from .runners.sparenet_runner import sparenetRunner
@@ -45,10 +47,14 @@ class SpareNet():
     
     def __init__(self, args) -> None:
         self._model, self._cfg  = self.make_model(args)
+        self._model.models.eval()
+        self._model.build_val_loss()
+        self.chamf_dis = self._model.chamfer_dist
+        if args.RECONSTRUCTION.model_path != "":
+            self._model.models.load_state_dict(torch.load(args.RECONSTRUCTION.model_path), strict=False)
         
     
     def make_model(self, args=dict()):
-        # args = get_args_from_command_line(args)
         
         cfg_from_file(args.RECONSTRUCTION.local_dir + "/configs/" + args.RECONSTRUCTION.model + ".yaml")
         if args.RECONSTRUCTION.test_mode is not None:
@@ -59,8 +65,6 @@ class SpareNet():
         cfg["PROJECT"] = EasyDict()
         #for k, v in args.items():
         cfg["PROJECT"].update(args["RECONSTRUCTION"])
-        #    break
-        # model.test()
 
         
         if cfg.PROJECT.model == "sparenet":
@@ -81,5 +85,8 @@ class SpareNet():
         return self._cfg
 
     def test(self):
-        self.model.test()
+        self._model.test()
+    
+    def complete(self, x):
+        return self._model.models(x)
     

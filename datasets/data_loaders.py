@@ -130,7 +130,7 @@ class ShapeNetDataLoader(object):
 
         # Load the dataset indexing file
         self.dataset_categories = []
-        with open(cfg.DATASETS.shapenet.category_file_path) as f:
+        with open(self.cfg.DATASETS.shapenet.category_file_path) as f:
             self.dataset_categories = json.loads(f.read())
 
     def get_dataset(self, subset):
@@ -144,7 +144,7 @@ class ShapeNetDataLoader(object):
         )
         
         transforms = self._get_transforms(self.cfg, subset)
-        return Dataset(
+        x = Dataset(
             {
                 "required_items": ["partial_cloud", "gtcloud"],
                 "shuffle": subset == DatasetSubset.TRAIN,
@@ -152,6 +152,8 @@ class ShapeNetDataLoader(object):
             file_list,
             transforms,
         )
+        
+        return x
 
     def _get_transforms(self, cfg, subset):
         if subset == DatasetSubset.TRAIN:
@@ -159,7 +161,7 @@ class ShapeNetDataLoader(object):
                 [
                     {
                         "callback": "RandomSamplePoints",
-                        "parameters": {"n_points": 3000},
+                        "parameters": {"n_points": cfg.DATASET.n_outpoints},
                         "objects": ["partial_cloud"],
                     },
                     {
@@ -179,7 +181,7 @@ class ShapeNetDataLoader(object):
                 [
                     {
                         "callback": "RandomSamplePoints",
-                        "parameters": {"n_points": 3000},
+                        "parameters": {"n_points": cfg.DATASET.n_outpoints},
                         "objects": ["partial_cloud"],
                     },
                     {
@@ -244,13 +246,7 @@ class ShapeNetDataLoader(object):
                                 % (subset, dc["taxonomy_id"], s),
                             }
                         )
-                        
-        if subset == "test" and self.cfg.PROJECT.sample_limit != -1:
-            indi = np.arange(len(file_list))
-            if self.cfg.PROJECT.random_samples:
-                indi = np.random.permutation(indi)
-            indi = indi[:self.cfg.PROJECT.sample_limit]
-            file_list = [file_list[i] for i in indi]
+                    
                 
         logger.info(
             "Complete collecting files of the dataset. Total files: %d" % len(file_list)

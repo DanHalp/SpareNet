@@ -157,8 +157,8 @@ def cfg_from_file(filename):
 def cfg_update(args):
     """Overwrite the hyperparameters in cfg."""
     # the path of model
-    if args.RECONSTRUCTION.ckpt is not None:
-        cfg.CONST.weights = args.RECONSTRUCTION.ckpt
+    if args.RECONSTRUCTION.model_path is not None:
+        cfg.CONST.weights = args.RECONSTRUCTION.model_path
     cfg.CONST.device = args.RECONSTRUCTION.gpu
     if args.RECONSTRUCTION.output is not None:
         cfg.DIR.out_path = args.RECONSTRUCTION.output
