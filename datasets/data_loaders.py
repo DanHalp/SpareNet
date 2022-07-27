@@ -133,7 +133,7 @@ class ShapeNetDataLoader(object):
         with open(self.cfg.DATASETS.shapenet.category_file_path) as f:
             self.dataset_categories = json.loads(f.read())
 
-    def get_dataset(self, subset):
+    def get_dataset(self, subset, num_files=-1):
         n_renderings = (
             self.cfg.DATASETS.shapenet.n_renderings
             if subset == DatasetSubset.TRAIN
@@ -142,6 +142,8 @@ class ShapeNetDataLoader(object):
         file_list = self._get_file_list(
             self.cfg, self._get_subset(subset)
         )
+        if num_files > 0:
+            file_list = file_list[:num_files]
         
         transforms = self._get_transforms(self.cfg, subset)
         x = Dataset(
@@ -156,12 +158,14 @@ class ShapeNetDataLoader(object):
         return x
 
     def _get_transforms(self, cfg, subset):
+        
+        
         if subset == DatasetSubset.TRAIN:
             return data_transforms.Compose(
                 [
                     {
                         "callback": "RandomSamplePoints",
-                        "parameters": {"n_points": cfg.DATASET.n_outpoints},
+                        "parameters": {"n_points": cfg.DATASET.partial_outpoints},
                         "objects": ["partial_cloud"],
                     },
                     {
@@ -181,7 +185,7 @@ class ShapeNetDataLoader(object):
                 [
                     {
                         "callback": "RandomSamplePoints",
-                        "parameters": {"n_points": cfg.DATASET.n_outpoints},
+                        "parameters": {"n_points": cfg.DATASET.partial_outpoints},
                         "objects": ["partial_cloud"],
                     },
                     {

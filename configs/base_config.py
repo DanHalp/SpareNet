@@ -18,13 +18,14 @@ __C.DATASET = edict()
 __C.DATASET.train_dataset = "ShapeNet"
 __C.DATASET.test_dataset = "ShapeNet"
 __C.DATASET.n_outpoints = 16384
+__C.DATASET.partial_outpoints = 1024
 __C.DATASET.num_class = 0  # overwrite by `train_MVGAN.py`
 
 # Constants
 __C.CONST = edict()
 __C.CONST.device = "0"
 __C.CONST.weights = None
-__C.CONST.num_workers = 32
+__C.CONST.num_workers = 2
 __C.CONST.n_input_points = 3000
 
 # Directories
