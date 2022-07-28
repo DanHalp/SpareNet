@@ -142,8 +142,8 @@ class ShapeNetDataLoader(object):
         file_list = self._get_file_list(
             self.cfg, self._get_subset(subset)
         )
-        if num_files > 0:
-            file_list = file_list[:num_files]
+        if num_files > 0: 
+            file_list = list(np.random.permutate(file_list)[:num_files])
         
         transforms = self._get_transforms(self.cfg, subset)
         x = Dataset(
@@ -214,6 +214,7 @@ class ShapeNetDataLoader(object):
                 % (dc["taxonomy_id"], dc["taxonomy_name"])
             )
             samples = dc[subset]
+
 
             for s in tqdm(samples, leave=False):
                 # original impletementation from GRNet,
