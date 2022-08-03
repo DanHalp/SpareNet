@@ -7,7 +7,7 @@ import open3d
 import logging
 from tensorboardX import SummaryWriter
 from ..cuda.emd import emd_module as emd
-from ..cuda.chamfer_distance import ChamferDistanceMean
+# from ..cuda.chamfer_distance import ChamferDistanceMean
 
 logger = logging.getLogger()
 
@@ -68,7 +68,7 @@ def model_load(cfg, net_G):
     best_metrics = None
     # Load pretrained model if exists
     if cfg.CONST.weights:
-        logger.info("Recovering from %s ..." % (cfg.CONST.weights))
+        # logger.info("Recovering from %s ..." % (cfg.CONST.weights))
         checkpoint = torch.load(cfg.CONST.weights)
         best_metrics = Metrics(cfg.TEST.metric_name, checkpoint["best_metrics"])
         init_epoch = checkpoint["epoch_index"]
@@ -78,7 +78,7 @@ def model_load(cfg, net_G):
             model_name = "grnet"
         
         net_G.load_state_dict(checkpoint[model_name])  # change into net_G!!
-        logger.info("Recover complete. Current epoch = #%d; best metrics = %s." % (init_epoch, best_metrics))
+        # logger.info("Recover complete. Current epoch = #%d; best metrics = %s." % (init_epoch, best_metrics))
     return init_epoch, best_metrics
 
 
@@ -108,7 +108,7 @@ def checkpoint_save(cfg, epoch_idx, metrics, best_metrics, net_G):
         }
         torch.save(state, output_path)
 
-        logger.info("Saved checkpoint to %s ..." % output_path)
+        # logger.info("Saved checkpoint to %s ..." % output_path)
         if metrics.better_than(best_metrics):
             best_metrics = metrics
     return best_metrics
@@ -148,7 +148,7 @@ class Metrics(object):
             "name": "ChamferDistance",
             "enabled": True,
             "eval_func": "cls._get_chamfer_distance",
-            "eval_object": ChamferDistanceMean(),
+            "eval_object": emd.emdModule(),
             "is_greater_better": False,
             "init_value": 32767,
         },

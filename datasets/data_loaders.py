@@ -91,6 +91,7 @@ def collate_fn(batch):
     return taxonomy_ids, labels, model_ids, data
 
 
+
 class Dataset(torch.utils.data.dataset.Dataset):
     def __init__(self, options, file_list, transforms=None):
         self.options = options
@@ -120,7 +121,8 @@ class Dataset(torch.utils.data.dataset.Dataset):
 
         if self.transforms is not None:
             data = self.transforms(data)
-
+        
+    
         return sample["taxonomy_id"], sample["label"], sample["model_id"], data
 
 
@@ -209,10 +211,10 @@ class ShapeNetDataLoader(object):
         """Prepare file list for the dataset"""
         file_list = []
         for label, dc in enumerate(self.dataset_categories):
-            logger.info(
-                "Collecting files of Taxonomy [ID=%s, Name=%s]"
-                % (dc["taxonomy_id"], dc["taxonomy_name"])
-            )
+            # logger.info(
+            #     "Collecting files of Taxonomy [ID=%s, Name=%s]"
+            #     % (dc["taxonomy_id"], dc["taxonomy_name"])
+            # )
             samples = dc[subset]
 
 
@@ -253,9 +255,9 @@ class ShapeNetDataLoader(object):
                         )
                     
                 
-        logger.info(
-            "Complete collecting files of the dataset. Total files: %d" % len(file_list)
-        )
+        # logger.info(
+        #     "Complete collecting files of the dataset. Total files: %d" % len(file_list)
+        # )
         return file_list
 
 
@@ -337,10 +339,10 @@ class Completion3DDataLoader(object):
         file_list = []
         label = 0
         for dc in self.dataset_categories:
-            logger.info(
-                "Collecting files of Taxonomy [ID=%s, Name=%s]"
-                % (dc["taxonomy_id"], dc["taxonomy_name"])
-            )
+            # logger.info(
+            #     "Collecting files of Taxonomy [ID=%s, Name=%s]"
+            #     % (dc["taxonomy_id"], dc["taxonomy_name"])
+            # )
             samples = dc[subset]
 
             for s in tqdm(samples, leave=False):
@@ -358,9 +360,9 @@ class Completion3DDataLoader(object):
             if dc["taxonomy_id"] != "all":
                 label += 1
 
-        logger.info(
-            "Complete collecting files of the dataset. Total files: %d" % len(file_list)
-        )
+        # logger.info(
+        #     "Complete collecting files of the dataset. Total files: %d" % len(file_list)
+        # )
         return file_list
 
 
@@ -417,10 +419,10 @@ class KittiDataLoader(object):
         file_list = []
         label = 0
         for dc in self.dataset_categories:
-            logger.info(
-                "Collecting files of Taxonomy [ID=%s, Name=%s]"
-                % (dc["taxonomy_id"], dc["taxonomy_name"])
-            )
+            # logger.info(
+            #     "Collecting files of Taxonomy [ID=%s, Name=%s]"
+            #     % (dc["taxonomy_id"], dc["taxonomy_name"])
+            # )
             samples = dc[subset]
 
             for s in tqdm(samples, leave=False):
@@ -436,9 +438,9 @@ class KittiDataLoader(object):
                     }
                 )
 
-        logger.info(
-            "Complete collecting files of the dataset. Total files: %d" % len(file_list)
-        )
+        # logger.info(
+        #     "Complete collecting files of the dataset. Total files: %d" % len(file_list)
+        # )
         return file_list
 
 

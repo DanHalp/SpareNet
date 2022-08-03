@@ -7,7 +7,7 @@ import logging
 from time import time
 from ..utils import misc as um
 from ..cuda.emd import emd_module as emd
-from ..cuda.chamfer_distance import ChamferDistanceMean
+# from ..cuda.chamfer_distance import ChamferDistanceMean
 from ..runners.misc import AverageMeter
 from ..runners.base_runner import BaseRunner
 

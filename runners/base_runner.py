@@ -18,7 +18,7 @@ from ..datasets.data_loaders import data_init
 from ..utils import misc as um
 from ..utils import visualizer as uv
 from ..utils.model_init import generator_init
-from ..cuda.chamfer_distance import ChamferDistance, ChamferDistanceMean
+# from ..cuda.chamfer_distance import ChamferDistance, ChamferDistanceMean
 
 
 class BaseRunner(object):

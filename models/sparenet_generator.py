@@ -99,7 +99,6 @@ class SpareNetEncode(nn.Module):
         hide_size=4096,
     ):
         super(SpareNetEncode, self).__init__()
-        print(encode)
         if encode == "Residualnet":
             self.feat_extractor = EdgeConvResFeat(
                 use_SElayer=use_SElayer, k=8, output_size=hide_size, hide_size=4096
